@@ -134,6 +134,7 @@ az login
 bash script-devops.sh
 
 # No Linux/Mac
+dos2unix script-devops.sh
 chmod +x script-devops.sh
 ./script-devops.sh
 ```
