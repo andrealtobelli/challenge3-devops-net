@@ -33,39 +33,37 @@ O **TrackZone** é uma API RESTful desenvolvida em .NET 9 para gerenciamento com
 
 ## 🏗️ Arquitetura da Solução
 
-### Desenho da Arquitetura
+![Arquitetura Macro](Arquitetura_macro.png)
+
 
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   GitHub Repo   │ -> │ GitHub Actions  │ -> │ Azure App Svc   │
-│   (Source)      │    │   (CI/CD)       │    │  (Application)  │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-                                                        │
-                                                        v
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│    Azure CLI    │ -> │  Resource Group │    │  Azure SQL DB   │
-│   (Deployment)  │    │  (Management)   │    │   (Database)    │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+
+### Fluxo de Funcionamento
+
+1. **Desenvolvimento**: O código-fonte é versionado no GitHub.
+2. **CI/CD**: O pipeline do GitHub Actions realiza build, testes e deploy automático da aplicação .NET.
+3. **Provisionamento de Infraestrutura**: O Azure CLI é utilizado para criar todos os recursos necessários no Azure, incluindo o Resource Group, App Service Plan, Web App, Azure SQL Database e Application Insights.
+4. **Hospedagem da Aplicação**: O Azure App Service hospeda a aplicação Web (API .NET).
+5. **Persistência de Dados**: O Azure SQL Database armazena todas as informações da aplicação.
+6. **Monitoramento e Telemetria**: O Application Insights coleta métricas, logs e telemetria da aplicação para análise e acompanhamento em tempo real.
+
+---
+
+### Justificativa Técnica
+
+- **Controllers**: Interface de entrada da API REST, responsável por receber e responder às requisições HTTP.
+- **Services**: Camada de regras de negócio e validações, garantindo integridade e lógica dos dados.
+- **Repositories**: Camada de acesso e persistência de dados, responsável pela comunicação com o banco SQL.
+- **Models/DTOs**: Estruturas para representação das entidades e transferência de dados entre as camadas.
+
+---
+
+**Resumo visual:**  
+- O fluxo inicia no GitHub, passa pelo CI/CD do GitHub Actions, que faz deploy no Azure Web App.
+- O Web App se conecta ao Azure SQL Database para persistência dos dados.
+- O Application Insights monitora toda a aplicação.
+- Todos os recursos estão organizados dentro de um Resource Group no Azure.
 ```
-
-### Fluxo de Funcionamento:
-
-1. **Desenvolvimento**: Código versionado no GitHub
-2. **CI/CD**: GitHub Actions automatiza build e deploy
-3. **Infraestrutura**: Azure CLI cria recursos na nuvem
-4. **Aplicação**: App Service hospeda a API .NET
-5. **Dados**: Azure SQL Database armazena informações
-6. **Monitoramento**: Application Insights coleta telemetria
-
-### Justificativa Técnica:
-
-A arquitetura segue os princípios **SOLID** e **Clean Architecture**:
-
-- **Controllers**: Interface de entrada (API REST)
-- **Services**: Regras de negócio e validações
-- **Repositories**: Acesso e persistência de dados
-- **Models/DTOs**: Representação e transferência de dados
-
 ### Estrutura do Projeto
 
 ```
@@ -464,7 +462,7 @@ O vídeo demonstrativo inclui:
 6. **Integração completa** entre App e Database funcionando 100%
 
 ### Link do Vídeo:
-**YouTube**: 
+**YouTube**: https://youtu.be/dz01KrSO4q0
 
 ## 📋 Checklist de Entrega
 
