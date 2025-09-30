@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e  # para parar caso dê erro
 
+echo "[TrackZone] Iniciando script de deploy..."
 # ============================
 # VARIÁVEIS
 # ============================
@@ -20,6 +21,7 @@ if [ -f ./.env.db ]; then
 fi
 
 
+echo "[TrackZone] Carregando variáveis do banco de dados..."
 # ============================
 # DEFAULTS DE BANCO (podem ser sobrescritos via env ou .env.db)
 # ============================
@@ -41,6 +43,7 @@ az provider register --namespace Microsoft.ServiceLinker
 az provider register --namespace Microsoft.Sql
 
 az extension add --name application-insights --allow-preview true || true
+echo "[TrackZone] Providers e extensões registrados."
 
 # ============================
 # PRÉ-CHECKS
@@ -54,12 +57,14 @@ if ! command -v sqlcmd >/dev/null 2>&1 && ! command -v pwsh >/dev/null 2>&1; the
   echo "ERRO: Nem sqlcmd nem pwsh encontrados. Instale o sqlcmd (ou use PowerShell com módulo SqlServer)." >&2
   exit 1
 fi
+echo "[TrackZone] Pré-checks de dependências OK."
 
 # ============================
 # GRUPOS DE RECURSOS
 # ============================
 az group create --name $RG_DB_NAME --location "${DB_LOCATION:-eastus2}"
 az group create --name $RESOURCE_GROUP_NAME --location "$LOCATION"
+echo "[TrackZone] Grupos de recursos criados."
 
 # ============================
 # BANCO DE DADOS SQL
@@ -87,12 +92,14 @@ az sql server firewall-rule create \
   --name liberaGeral \
   --start-ip-address 0.0.0.0 \
   --end-ip-address 255.255.255.255
+echo "[TrackZone] Banco de dados SQL criado e firewall liberado."
 
 ## ============================
 ## EXECUTAR T-SQL (reset, schema, seeds, triggers)
 ## ============================
 TMP_SQL=$(mktemp)
 cat >"$TMP_SQL" <<'SQL'
+echo "[TrackZone] Executando script SQL para criar schema e inserir dados seed..."
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 GO
@@ -260,6 +267,7 @@ else
     }
   "
 fi
+echo "[TrackZone] Script SQL executado com sucesso."
 
 rm -f "$TMP_SQL"
 
@@ -277,6 +285,7 @@ CONNECTION_STRING=$(az monitor app-insights component show \
   --resource-group $RESOURCE_GROUP_NAME \
   --query connectionString \
   --output tsv)
+echo "[TrackZone] Application Insights criado e configurado."
 
 # ============================
 # APP SERVICE PLAN + WEBAPP
@@ -302,6 +311,7 @@ az resource update \
   --name scm \
   --parent sites/$WEBAPP_NAME \
   --set properties.allow=true
+echo "[TrackZone] App Service Plan e WebApp criados. SCM habilitado."
 
 # ============================
 # CONFIGURAR VARIÁVEIS DO APP
@@ -331,6 +341,7 @@ az monitor app-insights component connect-webapp \
     --app $APP_INSIGHTS_NAME \
     --web-app $WEBAPP_NAME \
     --resource-group $RESOURCE_GROUP_NAME
+echo "[TrackZone] Variáveis de ambiente configuradas e WebApp reiniciado. Application Insights conectado."
 
 # ============================
 # DEPLOY VIA GITHUB ACTIONS
@@ -342,5 +353,5 @@ az webapp deployment github-actions add \
   --branch $BRANCH \
   --login-with-github
 
-echo "✅ Deploy configurado com sucesso!"
+echo "[TrackZone] Deploy via GitHub Actions configurado com sucesso!"
 
