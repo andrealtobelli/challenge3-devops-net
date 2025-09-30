@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e  # para parar caso dê erro
+set -e  
 
 echo "[TrackZone] Iniciando script de deploy..."
 # ============================
@@ -20,7 +20,6 @@ if [ -f ./.env.db ]; then
   source ./.env.db
 fi
 
-
 echo "[TrackZone] Carregando variáveis do banco de dados..."
 # ============================
 # DEFAULTS DE BANCO (podem ser sobrescritos via env ou .env.db)
@@ -31,7 +30,6 @@ echo "[TrackZone] Carregando variáveis do banco de dados..."
 : "${DB_USERNAME:=admsql}"
 : "${DB_PASSWORD:=Trackzone_321}"
 : "${DB_NAME:=SistemaGestaoMotos}"
-
 
 # ============================
 # PROVIDERS E EXTENSÕES
@@ -97,9 +95,9 @@ echo "[TrackZone] Banco de dados SQL criado e firewall liberado."
 ## ============================
 ## EXECUTAR T-SQL (reset, schema, seeds, triggers)
 ## ============================
+echo "[TrackZone] Executando script SQL para criar schema e inserir dados seed..."
 TMP_SQL=$(mktemp)
 cat >"$TMP_SQL" <<'SQL'
-echo "[TrackZone] Executando script SQL para criar schema e inserir dados seed..."
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 GO
@@ -354,4 +352,3 @@ az webapp deployment github-actions add \
   --login-with-github
 
 echo "[TrackZone] Deploy via GitHub Actions configurado com sucesso!"
-
